@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='ws-det',
+setup(name='wsdet',
       version='0.1',
       description='Wittkuhn & Schuck (2021) implementation to detect fast sequences in fMRI',
       long_description_content_type="text/markdown",
@@ -8,7 +8,7 @@ setup(name='ws-det',
       author='skjerns',
       author_email='nomail@nomail.com',
       license='GPLv4',
-      packages=['tdlm'],
+      packages=['wsdet'],
       zip_safe=False,
       classifiers=[
           "Programming Language :: Python :: 3",
