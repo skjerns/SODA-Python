@@ -2,7 +2,7 @@
 """
 Created on Mon Jan 13 11:02:17 2025
 
-Implementation of Wittkuhn et al (2021) detection method for seqeucnes
+Implementation of Wittkuhn et al (2021) detection method for sequences
 of decoded stimuli
 
 @author: Simon Kern
@@ -32,7 +32,7 @@ def difference(proba):
     return -np.diff(proba, axis=0)[0]
 
 
-def linear_regression(proba):
+def linear(proba):
     """compute a pearson correlation for a row of values, sign flipped"""
     X = add_constant(np.arange(len(proba)))  # Add intercept
     model = OLS(proba, X).fit()
@@ -40,7 +40,7 @@ def linear_regression(proba):
     return -slope
 
 
-def compute_ws(proba, order=None, method='linear_regression'):
+def compute_slopes(proba, order=None, method='linear'):
     """
     Calculate a correlation coefficient on each time step of the probability
     vector
@@ -51,7 +51,7 @@ def compute_ws(proba, order=None, method='linear_regression'):
     ----------
     proba : np.ndarray
         Array containing probability estimates across time of size
-        (n_classes, n_timesteps)
+        (n_timesteps, n_classes)
     order : (np.array, list, str), optional
         The expected order of the classes. If None is supplied will assume a
         linear ordering [1,2,3,4,..]. Can be supplied as numeric array or as
@@ -60,7 +60,7 @@ def compute_ws(proba, order=None, method='linear_regression'):
     method : str, optional
         Which method to use to calculate the regression coefficient at each
         time point. Can be either 'difference' (for two classes) or
-        'linear_regression' for more classes _or_ a custom callable that
+        'linear' for more classes _or_ a custom callable that
         accepts an ordered 'proba' vector as input and computes one value for
         each timestep (second dimension of the proba array).
         The default is 'linear_regression'
@@ -70,7 +70,11 @@ def compute_ws(proba, order=None, method='linear_regression'):
     values - regression coefficient across time
     """
     assert proba.ndim == 2, f'proba must be 2d (n_classes, probabilities) but is {proba.ndim=}'
-    assert np.diff(proba.shape)>1, f'proba has wrong dimension: {proba.shape=}, second should be larger'
+    assert np.diff(proba.shape)<1, f'proba has wrong dimension: {proba.shape=}, first should be larger (time, classes)'
+
+    # actually the function needs the inputs the other way around, so convert
+    proba = proba.T
+
     assert len(proba)>1, f'must at least supply two classes, but {proba.shape=}'
 
     if len(proba)==2:
